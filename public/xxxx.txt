@@ -1,0 +1,1 @@
+/data/wwwroot/pay.ft361.com/vendor/laravel/framework/src/Illuminate/Database/Connection.php770SQLSTATE[42S22]: Column not found: 1054 Unknown column 'API_DevSecret' in 'jpush_configs' (SQL: ALTER TABLE `jpush_configs` CHANGE `API_DevSecret` `API_DevSecre` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;)
