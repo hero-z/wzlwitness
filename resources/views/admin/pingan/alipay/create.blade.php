@@ -174,7 +174,7 @@
                 <input id="total_amount" value="" type="number" placeholder="请询问服务员后输入">
             </div>-->
             <div class="ipt" >
-                <span>消费金额</span><i></i>
+                <span>消费金额11</span><i></i>
 
                 <div class="price">¥<span id="price" style="font-size: 30px;"></span></div>
 
@@ -242,7 +242,8 @@
                 }, function (data) {
                     ck=1;
                     if (data.success) {
-                        window.location.href = 'https://openapi-liquidation.51fubei.com/alipayPage/?prepay_id=' + data.return_value.prepay_id + '&callback_url='+'{{url('/admin/pingan/ReturnStatus')}}'+'&out_trade_no='+data.return_value.out_trade_no+'&trade_no=' + data.return_value.trade_no;
+                        window.location.href = 'https://openapi-liquidation-test.51fubei.com/alipayPage/?prepay_id=' + data.return_value.prepay_id + '&callback_url='+'{{url('/admin/pingan/ReturnStatus')}}'+'&out_trade_no='+data.return_value.out_trade_no+'&trade_no=' + data.return_value.trade_no;
+                        {{--window.location.href = 'https://openapi-liquidation.51fubei.com/alipayPage/?prepay_id=' + data.return_value.prepay_id + '&callback_url='+'{{url('/admin/pingan/ReturnStatus')}}'+'&out_trade_no='+data.return_value.out_trade_no+'&trade_no=' + data.return_value.trade_no;--}}
                     } else {
                         window.location.href = "{{url('admin/alipayopen/OrderErrors')}}";
                     }

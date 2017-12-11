@@ -14,6 +14,8 @@
     <link rel="stylesheet" href="{{asset('/amazeui/assets/css/amazeui.min.css')}}"/>
     <link rel="stylesheet" href="{{asset('/amazeui/assets/css/amazeui.datatables.min.css')}}"/>
     <link rel="stylesheet" href="{{asset('/amazeui/assets/css/app.css')}}">
+    <link href="{{asset('/adminui/css/total.css')}}" rel="stylesheet">
+    <link href="{{asset('/adminui/css/btn.css')}}" rel="stylesheet">
     <script src="{{asset('/amazeui/assets/js/jquery.min.js')}}"></script>
     <script src="{{asset('/amazeui/assets/js/theme.js')}}"></script>
     @yield('css')
@@ -301,9 +303,30 @@
                 </ul>
 
             </li>
+            <li class="sidebar-nav-link">
+                <a href="javascript:;" class="sidebar-nav-sub-title">
+                    <i class="am-icon-signing sidebar-nav-link-logo"></i> 平安见证宝管理
+                    <span class="am-icon-chevron-down am-fr am-margin-right-sm sidebar-nav-sub-ico"></span>
+                </a>
+                <ul class="sidebar-nav sidebar-nav-sub">
+                    <li class="sidebar-nav-link">
+                        <a href="{{url('merchant/witness/index')}}">
+                            <span class="am-icon-angle-right sidebar-nav-link-logo"></span>平安见证宝管理
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-link">
+                        <a href="{{url('merchant/witness/withdrawinfo')}}">
+                            <span class="am-icon-angle-right sidebar-nav-link-logo"></span>提现记录查询
+                        </a>
+                    </li>
+                </ul>
+
+            </li>
         </ul>
     </div>
     <div class="tpl-content-wrapper">
+        {{--遮罩层--}}
+        <div id="mask" class="mask"></div>
         <div class="row-content am-cf">
             @yield('content')
         </div>

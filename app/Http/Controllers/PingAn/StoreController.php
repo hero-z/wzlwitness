@@ -14,6 +14,7 @@ use App\Models\PingancqrLsits;
 use App\Models\PingancqrLsitsinfo;
 use App\Models\PinganStore;
 use App\Models\PinganStoreInfos;
+use App\Models\PinganWitnessAccount;
 use App\Models\ProvinceCity;
 use App\User;
 use Illuminate\Auth\Access\Response;
@@ -307,8 +308,10 @@ class StoreController extends BaseController
         $aop = $this->AopClient();
         $aop->method = "fshows.liquidation.submerchant.create.with.auth";
         $data = array('content' => json_encode($store));
+        Log::info($data);
         $response = $aop->execute($data);
         $responseArray = json_decode($response, true);
+        Log::info($responseArray);
         if ($responseArray['success']) {
 
             $updateData['external_id'] = $request->external_id;
@@ -386,6 +389,24 @@ class StoreController extends BaseController
         }
         $id = $request->get('id');
         $store = PinganStore::where('id', $id)->first();
+        if($store){
+            //见证宝体系
+            if($store->cust_id){
+                //获取银行列表
+                $banks=DB::table('zjjz_banks')->select('bank_code','bank_name','bank_no')->get();
+                if($banks){
+                    $banks=$banks->toArray();
+                }
+                //获取省份
+                $province=DB::table('pub_pay_node')->pluck('node_nodename','node_nodecode');
+                if($province){
+                    $province=$province->toArray();
+                }
+                return view('admin.pingan.store.setwitness', compact('store','banks','province'));
+            }
+        }else{
+            die('查询异常!');
+        }
         return view('admin.pingan.store.set', compact('store'));
     }
 
@@ -489,7 +510,7 @@ class StoreController extends BaseController
 
         if ($pay_type == "other") {
 
-            return '请用支付宝或者微信扫描二维码';
+//            return '请用支付宝或者微信扫描二维码';
 
         }
         //显示推广员信息
@@ -511,6 +532,7 @@ class StoreController extends BaseController
         $store = $request->except(['_token', 'user_id', 'code_number', 'sfz1', 'sfz2', 'orther1', 'province_code', 'city_code', 'district_code']);
         //检查系统店铺是否存在
         $s = PinganStore::where('alias_name', $store['alias_name'])->first();
+        $m_id = auth()->guard('merchant')->user()->id;
         if ($s) {
             return json_encode([
                 'success' => false,
@@ -524,6 +546,33 @@ class StoreController extends BaseController
                 return json_encode([
                     'success' => false,
                     'error_message' => '推广员不存在'
+                ]);
+            }
+        }
+        //见证宝cust_id
+        $witnessaccount=PinganWitnessAccount::where('merchant_id',$m_id)->first();
+        if($witnessaccount&&$witnessaccount->cust_id){
+            //商户已经有见证宝
+            $store['jzb_cust_id']=$witnessaccount->cust_id;
+        }else{
+            //注册见证宝
+            $witnesscmd=new WitnessController();
+            $resarr=$witnesscmd->create($store['alias_name']);
+            if($resarr['success']&&$resarr['return_value']){
+                $store['jzb_cust_id']=$resarr['return_value']['cust_id'];
+                if($witnessaccount){
+                    $witnessaccount->update(['cust_id'=>$store['jzb_cust_id']]);
+                }else{
+                    PinganWitnessAccount::create([
+                        'merchant_id'=>$m_id,
+                        'cust_id'=>$store['jzb_cust_id'],
+                        'nick_name'=>$store['alias_name'],
+                    ]);
+                }
+            }else{
+                return json_encode([
+                    'success' => false,
+                    'error_message' => '创建见证宝账号失败!'.(array_key_exists('error_message',$resarr)?$resarr['error_message']:'')
                 ]);
             }
         }
@@ -578,6 +627,7 @@ class StoreController extends BaseController
             $storeUpdateData['contact_phone'] = $request->service_phone;
             $storeUpdateData['contact_mobile'] = $request->service_phone;
             $storeUpdateData['contact_email'] = $request->service_phone . '@163.com';
+            $storeUpdateData['cust_id'] = $store['jzb_cust_id'];
             $storeinfo = PinganStore::where('external_id', $store['external_id'])->first();
             if ($storeinfo) {
                 PinganStore::where('external_id', $store['external_id'])->update($storeUpdateData);
@@ -600,7 +650,6 @@ class StoreController extends BaseController
             }
             try {
                 //关联商户id
-                $m_id = auth()->guard('merchant')->user()->id;
                 MerchantShops::create([
                     'merchant_id' => $m_id,
                     'store_id' => $request->external_id,
@@ -636,19 +685,97 @@ class StoreController extends BaseController
 
         if ($pay_type == "other") {
 
-            return '请用支付宝或者微信扫描二维码';
+//            return '请用支付宝或者微信扫描二维码';
 
         }
-
-        return view('admin.pingan.store.autom');
+        //获取银行列表
+        $banks=DB::table('zjjz_banks')->select('bank_code','bank_name','bank_no')->get();
+        if($banks){
+            $banks=$banks->toArray();
+        }
+        //获取省份
+        $province=DB::table('pub_pay_node')->pluck('node_nodename','node_nodecode');
+        if($province){
+            $province=$province->toArray();
+        }
+        return view('admin.pingan.store.autom',compact('banks','province'));
     }
 
     //提交绑定银行卡
     public function automPost(Request $request)
     {
+        $info='';
+        $data=$request->only('external_id','bank_card_no','card_holder','card_phone','s_bank_code','bank_code','bank_name');
+        $store = PinganStore::where('external_id', $data['external_id'])->first();
+        $storeinfo = PinganStoreInfos::where('external_id', $data['external_id'])->first();
+        $m_id = auth()->guard('merchant')->user()->id;
+        $witnessaccount=PinganWitnessAccount::where('merchant_id',$m_id)->first();
+        try{
+            if($store&&$storeinfo&&$witnessaccount){
+                $content['lp_store_id'] = $store->sub_merchant_id;
+                $content['id_type'] = 1;
+                $content['id_code'] = $storeinfo->sfzno;
+                $content['bank_type'] = $data['s_bank_code']=='307584007998'?1:2;
+                $content['bank_card_id'] = $data['bank_card_no'];
+                $content['bank_card_user'] = $data['card_holder'];
+                $content['bank_name'] = $data['bank_name'];
+                $content['bank_code'] = $data['bank_code'];
+                $content['s_bank_code'] = $data['s_bank_code'];
+                $content['mobile_phone'] = $data['card_phone'];
+                $witnesscmd=new WitnessController();
+                $resarr=$witnesscmd->bindBank($content);
+                if($resarr['success']){
+                    $content['bank_card_id'] = $data['bank_card_no'];
+                    $content['bank_card_user'] = $data['card_holder'];
+                    $content['bank_name'] = $data['bank_name'];
+                    $content['s_bank_code'] = $data['s_bank_code'];
+                    $content['mobile_phone'] = $data['card_phone'];
+                    $upreck=true;
+                    $re=$witnessaccount->update([
+                        'bank_card_no'=>$data['bank_card_no'],
+                        'bank_card_user'=>$data['card_holder'],
+                        'bank_name'=>$data['bank_name'],
+                        'card_phone'=>$data['card_phone'],
+                    ]);
+                    $sre=$store->update([
+                        'bank_card_no'=>$data['bank_card_no'],
+                        'card_holder'=>$data['card_holder'],
+                    ]);
+                    if(!$re){
+                        $upreck=false;
+                        $info='信息保存失败!';
+                    }
+                    if(!$sre){
+                        $upreck=false;
+                        $info='信息保存失败!';
+                    }
+                    if($upreck){
+                        return json_encode([
+                            'success' => true,
+                            'error_message' =>$resarr['return_value']['msg']
+                        ]);
+                    }
+                }else{
+                    $info='商户见证宝绑卡失败!'.(array_key_exists('error_message',$resarr)?$resarr['error_message']:'');
+                }
+            }else{
+                $info='查询异常';
+            }
+        }catch (\Exception $e){
+            $info=$e->getMessage().$e->getLine();
+            Log::info($e);
+        }
+        return json_encode([
+            'success' => false,
+            'error_message' =>$info
+        ]);
+    }
+    //原商户绑卡
+    /*public function automPost(Request $request)
+    {
         $external_id = $request->get('external_id');
-        $code_number = $request->get('$code_number');
         $aop = $this->AopClient();
+        $aop->method = 'fshows.liquidation.store.witness.bind.bank';
         $aop->method = 'fshows.liquidation.submerchant.bank.bind';
         if ($request->get('is_public_account') == 1) {
             $content = [
@@ -675,8 +802,7 @@ class StoreController extends BaseController
         }
 
         return $response;
-    }
-
+    }*/
     //第三步上传资质文件
 
     public function autoFile(Request $request)

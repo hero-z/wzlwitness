@@ -353,6 +353,16 @@ Route::group(['namespace' => 'PingAn', 'middleware' => 'auth', 'prefix' => 'admi
     Route::get("/BranchIndex", "PinanBranchController@BranchIndex");
     Route::get("/BranchAdd", "PinanBranchController@BranchAdd");
     Route::post("/BranchAddPost", "PinanBranchController@BranchAddPost")->name('BranchAddPost');
+
+    //微信一户一码
+    Route::post('/getbusiness','WxSubMerchantController@getBusiness');
+    Route::post('/getsubappid','WxSubMerchantController@getSubAppid');
+    Route::post('/createsubmerchant','WxSubMerchantController@createSubMerchant');
+    Route::post('/submerchantset','WxSubMerchantController@SubMerchantSet');
+    //平安见证宝管理
+    Route::get('/witnessinfo','WitNessInfoController@WitNessInfo');
+    Route::post('/witness/querywitness',"WitNessInfoController@QueryWitNess");
+    Route::post('/witness/withdraw',"WitNessInfoController@WithDraw");
 });
 
 //平安银行 不要登录可访问
@@ -399,7 +409,15 @@ Route::group(['namespace' => 'PingAn', 'prefix' => 'admin/pingan', 'middleware' 
     Route::post('/automPost', 'StoreController@automPost')->name('automPost');
     Route::get('/autoFile', 'StoreController@autoFile')->name('autoFile');
     Route::post('/autoFilePost', 'StoreController@autoFilePost')->name('autoFilePost');
-
+    //见证宝
+    Route::get("/witness/account/create", "WitnessController@create");
+    Route::get("/witness/bind/bank", "WitnessController@bindBank");
+    Route::get("/witness/verify", "WitnessController@verify");
+    Route::post("/witness/getcity", "WitnessController@getCity");
+    Route::post("/witness/getopenbank", "WitnessController@getOpenBank");
+    //见证宝鉴权
+    Route::post("/witness/verifymessage", "WitnessController@verifyMessage");
+    Route::post("/witness/verifymoney", "WitnessController@verifyMoney");
 });
 //商户
 Route::group(['namespace' => 'Merchant', 'prefix' => 'merchant', 'middleware' => 'auth.merchant'], function () {
@@ -478,7 +496,11 @@ Route::group(['namespace' => 'Merchant', 'prefix' => 'merchant', 'middleware' =>
     //支付宝花呗分期页面
     Route::get('/alipayhbfq', 'AlipayHbfqController@alipayhbfq')->name('alipayhbfq');
     Route::post('/alipayhbfqPost', 'AlipayHbfqController@alipayhbfqPost')->name('alipayhbfqPost');
-
+    //平安见证宝管理
+    Route::get('/witness/index',"WitNessController@Index");
+    Route::post('/witness/querywitness',"WitNessController@QueryWitNess");
+    Route::post('/witness/withdraw',"WitNessController@WithDraw");
+    Route::get('/witness/withdrawinfo',"WitNessController@withdrawInfo");
 });
 //固定金额异步通知
 Route::group(['namespace' => 'Merchant', 'prefix' => 'merchant'], function () {
@@ -670,13 +692,13 @@ Route::group(['namespace' => 'PuFa', 'prefix' => 'api/pufa'], function () {
     Route::any('/storeSuccess', 'StoreController@storeSuccess')->name('storeSuccess');
 });
 //支付宝卡券
-Route::group(['namespace' => "alipass", "prefix" => "admin/alipass"], function () {
-    Route::get("/index", "alipassController@index")->name("adIndex");
-    Route::get("/addAlipass", "alipassController@addAlipass")->name("addAlipass");
-    Route::post("/createAlipass", "alipassController@createAlipass")->name("createAlipass");
-    Route::get("/useAlipass", "alipassController@useAlipass")->name("useAlipass");
-    Route::get("description","alipassController@description")->name('description');
-});
+//Route::group(['namespace' => "alipass", "prefix" => "admin/alipass"], function () {
+//    Route::get("/index", "alipassController@index")->name("adIndex");
+//    Route::get("/addAlipass", "alipassController@addAlipass")->name("addAlipass");
+//    Route::post("/createAlipass", "alipassController@createAlipass")->name("createAlipass");
+//    Route::get("/useAlipass", "alipassController@useAlipass")->name("useAlipass");
+//    Route::get("description","alipassController@description")->name('description');
+//});
 
 //二维码统一管理
 Route::group(['namespace' => 'Qr', 'middleware' => 'auth', 'prefix' => 'admin/qr'], function () {

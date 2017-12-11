@@ -251,6 +251,9 @@
     <div id="con"></div>
 @section('js')
     <script>
+        $(document).ready(function () {
+            $('body').css('overflow','auto');
+        });
         function addpost() {
             if($("#category_id").val()=='请选择分类'){
                 layer.msg('门店分类必选!');

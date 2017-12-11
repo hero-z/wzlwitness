@@ -96,55 +96,72 @@ class WxCardController extends BaseController{
 //        dd($result);
 
 
-        $config = WeixinPayConfig::where('id', 1)->first();//微信支付参数 app_id
-        $WeixinPayNotifyStore = WeixinPayNotify::where('store_id', 'w1419589702')->first();
-        $options = [
-            'app_id' => $config->app_id,
-            'secret' => $config->secret,
-            'token' => '18851186776',
-            'payment' => [
-                'merchant_id' => $config->merchant_id,
-                'key' => $config->key,
-                'cert_path' => $config->cert_path, // XXX: 绝对路径！！！！
-                'key_path' => $config->key_path,      // XXX: 绝对路径！！！！
-                'notify_url' => $config->notify_url,       // 你也可以在下单时单独设置来想覆盖它
-            ],
-        ];
-        $app = new Application($options);
-        $userService = $app->user;
-        $user = $userService->get('opnT0s8pVcxE_TOUyeuCuwsuPIEo');//买家open_id
-        dd($user);
-        $template = PageSets::where('id', 1)->first();
-        $notice = $app->notice;
-        $userIds = $WeixinPayNotifyStore->receiver;
-        $open_ids = explode(",", $userIds);
-        $templateId = $template->string1;
-        $url = $WeixinPayNotifyStore->linkTo;
-        $color = $WeixinPayNotifyStore->topColor;
-        $andData = array(
-            "keyword1" => 10,
-//                                    "keyword2" => '微信(' . $user->nickname . ')',
-            "keyword2" => '微信支付',
-            "keyword3" => '2017-4-26 00:00:00',
-            "keyword4" => '11111111111',
-            "remark" => '祝' . $WeixinPayNotifyStore->store_name . '生意红火',
-        );
+//        $config = WeixinPayConfig::where('id', 1)->first();//微信支付参数 app_id
+//        $WeixinPayNotifyStore = WeixinPayNotify::where('store_id', 'w1419589702')->first();
+//        $options = [
+//            'app_id' => $config->app_id,
+//            'secret' => $config->secret,
+//            'token' => '18851186776',
+//            'payment' => [
+//                'merchant_id' => $config->merchant_id,
+//                'key' => $config->key,
+//                'cert_path' => $config->cert_path, // XXX: 绝对路径！！！！
+//                'key_path' => $config->key_path,      // XXX: 绝对路径！！！！
+//                'notify_url' => $config->notify_url,       // 你也可以在下单时单独设置来想覆盖它
+//            ],
+//        ];
+//        $app = new Application($options);
+//        $userService = $app->user;
+//        $user = $userService->get('opnT0s8pVcxE_TOUyeuCuwsuPIEo');//买家open_id
+//        dd($user);
+//        $template = PageSets::where('id', 1)->first();
+//        $notice = $app->notice;
+//        $userIds = $WeixinPayNotifyStore->receiver;
+//        $open_ids = explode(",", $userIds);
+//        $templateId = $template->string1;
+//        $url = $WeixinPayNotifyStore->linkTo;
+//        $color = $WeixinPayNotifyStore->topColor;
+//        $andData = array(
+//            "keyword1" => 10,
+////                                    "keyword2" => '微信(' . $user->nickname . ')',
+//            "keyword2" => '微信支付',
+//            "keyword3" => '2017-4-26 00:00:00',
+//            "keyword4" => '11111111111',
+//            "remark" => '祝' . $WeixinPayNotifyStore->store_name . '生意红火',
+//        );
+//
+//        foreach ($open_ids as $v) {
+//            $s = WXNotify::where('open_id', $v)->where('store_id', 'w1419589702')->first();
+//            if ($s) {
+//                if ($s->status) {
+//                    try {
+//                        $notice->uses($templateId)->withUrl($url)->andData($andData)->andReceiver($v)->send();
+//                    } catch (\Exception $exception) {
+//                        Log::info($exception);
+//                        continue;
+//                    }
+//                }
+//            } else {
+//                continue;
+//            }
+//        }
 
-        foreach ($open_ids as $v) {
-            $s = WXNotify::where('open_id', $v)->where('store_id', 'w1419589702')->first();
-            if ($s) {
-                if ($s->status) {
-                    try {
-                        $notice->uses($templateId)->withUrl($url)->andData($andData)->andReceiver($v)->send();
-                    } catch (\Exception $exception) {
-                        Log::info($exception);
-                        continue;
-                    }
-                }
-            } else {
-                continue;
-            }
-        }
+//        $file=file(public_path().'/text.txt');
+//        foreach ($file as $v){
+//            $newstr=str_replace(["\r\n","\n","\r"],'',$v);
+//            $newstr=str_replace("\t",' ',$newstr);
+//            $newstr=preg_replace("/[\s]+/is"," ",$newstr);
+////            $newstr=mb_convert_encoding( $newstr, 'utf-8', 'UTF-8,GBK,GB2312,BIG5' );
+//            $arr=explode(' ',$newstr);
+//            DB::table('zjjz_banks')->insert([
+//                'bank_name'=>$arr[3],
+//                'bank_code'=>$arr[4],
+//                'bank_no'=>$arr[1]
+//            ]);
+//        }
+        dd(json_decode(     '{"lp_store_id":"20171209004227022484","id_type":1,"id_code":"410221199603051235","bank_type":2,"bank_card_id":"4563511200014488507","bank_card_user":"\\u6d4b\\u8bd5","bank_name":"\\u4e2d\\u56fd\\u94f6\\u884c\\u80a1\\u4efd\\u6709\\u9650\\u516c\\u53f8\\u5357\\u4eac\\u6c5f\\u5b81\\u7ecf\\u6d4e\\u5f00\\u53d1\\u533a\\u652f\\u884c","bank_code":"104301004820","s_bank_code":"104100000004","mobile_phone":"18251828302"}'
+));
+
     }
     //子商户列表
     public function addsubmerchant(){

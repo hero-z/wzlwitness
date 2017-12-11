@@ -53,6 +53,7 @@ class AlipayController extends BaseController
         try {
             $response = $aop->execute($data);
             $responseArray = json_decode($response, true);
+            Log::info($responseArray);
             /* array (
                  'return_value' =>
                      array (
