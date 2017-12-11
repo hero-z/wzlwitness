@@ -192,7 +192,7 @@ class AlipayTradeCreateController extends BaseController
             "\"timeout_express\":\"90m\"" .
             "}");
         $result = $c->execute($requests, null, $shop['app_auth_token']);
-        Log::info((array)$result);
+        //Log::info((array)$result);
         $responseNode = str_replace(".", "_", $requests->getApiMethodName()) . "_response";
         $resultCode = $result->$responseNode->code;
         if (!empty($resultCode) && $resultCode == 10000) {

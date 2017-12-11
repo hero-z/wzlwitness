@@ -120,7 +120,7 @@ class PinganQrController extends BaseController
     public function Qrcode(Request $request)
     {
         $code_number = $request->get('code_number');//获得空码编号
-        $pay_type = "weixin";
+        $pay_type = "other";
 //        dd($_SERVER['HTTP_USER_AGENT']);
         //判断是不是微信
         if (strpos($_SERVER['HTTP_USER_AGENT'], 'MicroMessenger') !== false) {
