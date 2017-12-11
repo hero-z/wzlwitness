@@ -670,7 +670,7 @@ class StoreController extends BaseController
         return $response;
     }
 
-//用户自主绑定银行卡 第二步 页面
+    //用户自主绑定银行卡 第二步 页面
     public function autom()
     {
         $pay_type = "other";
@@ -702,7 +702,7 @@ class StoreController extends BaseController
     }
 
     //提交绑定银行卡
-    public function automPost(Request $request)
+    public function witnessAutomPost(Request $request)
     {
         $info='';
         $data=$request->only('external_id','bank_card_no','card_holder','card_phone','s_bank_code','bank_code','bank_name');
@@ -771,7 +771,7 @@ class StoreController extends BaseController
         ]);
     }
     //原商户绑卡
-    /*public function automPost(Request $request)
+    public function automPost(Request $request)
     {
         $external_id = $request->get('external_id');
         $aop = $this->AopClient();
@@ -802,7 +802,7 @@ class StoreController extends BaseController
         }
 
         return $response;
-    }*/
+    }
     //第三步上传资质文件
 
     public function autoFile(Request $request)

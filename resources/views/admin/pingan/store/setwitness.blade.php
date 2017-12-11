@@ -147,7 +147,7 @@
                 $('#bankName').focus();
             }else{
                 var bankinfo=$('#bankType').val().split("**");
-                $.post("{{route("automPost")}}",
+                $.post("{{route("witnessAutomPost")}}",
                     {
                         _token: '{{csrf_token()}}',
                         external_id: $("#external_id").val(),

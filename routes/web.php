@@ -415,6 +415,7 @@ Route::group(['namespace' => 'PingAn', 'prefix' => 'admin/pingan', 'middleware' 
     Route::get("/witness/verify", "WitnessController@verify");
     Route::post("/witness/getcity", "WitnessController@getCity");
     Route::post("/witness/getopenbank", "WitnessController@getOpenBank");
+    Route::post('/witness/automPost', 'StoreController@witnessAutomPost')->name('witnessAutomPost');
     //见证宝鉴权
     Route::post("/witness/verifymessage", "WitnessController@verifyMessage");
     Route::post("/witness/verifymoney", "WitnessController@verifyMoney");
